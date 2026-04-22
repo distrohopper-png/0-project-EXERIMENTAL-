@@ -7,9 +7,28 @@ _pc() {
 }
 
 _build_colors() {
-    _PC1=$(_pc "${ZSH_C1:-ffb4aa}")
+    # Material You "on" colors are pastels — boost sat/val so they look vivid on dark bg
+    local _vivid
+    _vivid=$(python3 -c "
+import colorsys
+def boost(hex_in):
+    h = hex_in.lstrip('#')
+    r,g,b = int(h[0:2],16)/255, int(h[2:4],16)/255, int(h[4:6],16)/255
+    hue,sat,val = colorsys.rgb_to_hsv(r,g,b)
+    sat = max(sat, 0.72)
+    val = min(0.92, max(val, 0.80))
+    r2,g2,b2 = colorsys.hsv_to_rgb(hue, sat, val)
+    return f'#{int(r2*255):02x}{int(g2*255):02x}{int(b2*255):02x}'
+print(boost('${ZSH_C1:-#ffb4aa}'))
+print(boost('${ZSH_C3:-#77ac6c}'))
+" 2>/dev/null)
+    _VC1=$(echo "$_vivid" | sed -n '1p')
+    _VC3=$(echo "$_vivid" | sed -n '2p')
+    [[ -n "$_VC1" ]] || _VC1="${ZSH_C1:-#ffb4aa}"
+    [[ -n "$_VC3" ]] || _VC3="${ZSH_C3:-#77ac6c}"
+    _PC1=$(_pc "$_VC1")
     _PC2=$(_pc "${ZSH_C2:-e7bdb7}")
-    _PC3=$(_pc "${ZSH_C3:-77ac6c}")
+    _PC3=$(_pc "$_VC3")
     _PC4=$(_pc "${ZSH_C4:-504c50}")
     _PC5=$(_pc "${ZSH_C5:-ffd7d0}")
     _PR=$'%{\033[0m%}'
@@ -103,12 +122,13 @@ fetch() {
     local colors_file="$HOME/.config/zsh/colors.zsh"
     local cfg="/tmp/zsh_fastfetch.jsonc"
 
-    # Re-source to pick up latest matugen colors
+    # Re-source to pick up latest matugen colors, then rebuild vivid vars
     [[ -f "$colors_file" ]] && source "$colors_file"
+    _build_colors
 
-    local c1="${ZSH_C1:-#ffb4aa}"
+    local c1="${_VC1:-${ZSH_C1:-#ffb4aa}}"
     local c2="${ZSH_C2:-#e7bdb7}"
-    local c3="${ZSH_C3:-#77ac6c}"
+    local c3="${_VC3:-${ZSH_C3:-#77ac6c}}"
 
     # Rebuild config only if colors changed or config is missing
     if [[ ! -f "$cfg" ]] || [[ "$colors_file" -nt "$cfg" ]]; then
