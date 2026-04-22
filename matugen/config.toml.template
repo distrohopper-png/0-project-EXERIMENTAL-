@@ -1,12 +1,8 @@
 [config]
 
-[templates.fastfetch]
-input_path  = "{{HOME}}/.config/matugen/templates/fastfetch.jsonc"
-output_path = "{{HOME}}/.config/fastfetch/config.jsonc"
-
-[templates.fastfetch-small]
-input_path  = "{{HOME}}/.config/matugen/templates/fastfetch-small.jsonc"
-output_path = "{{HOME}}/.config/fastfetch/small.jsonc"
+[templates.zsh-colors]
+input_path  = "{{HOME}}/.config/matugen/templates/zsh-colors.zsh"
+output_path = "{{HOME}}/.config/zsh/colors.zsh"
 
 [templates.rofi-theme]
 input_path  = "{{HOME}}/.config/matugen/templates/rofi-theme.rasi"
