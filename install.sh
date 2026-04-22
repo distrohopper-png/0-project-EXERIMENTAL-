@@ -198,8 +198,13 @@ link "$DOTFILES/zsh/.zshrc"                                  "$HOME/.zshrc"
 # Directories without config files
 mkdir -p "$HOME/.config/cmatrix"
 mkdir -p "$HOME/.config/zsh"
+mkdir -p "$HOME/.config/hypr"
 mkdir -p "$HOME/Pictures/Wallpapers"
 ok "created required directories"
+
+# local.conf — personal Hyprland overrides (hyprsunset, extra monitors, etc.) not tracked by git
+[ -f "$HOME/.config/hypr/local.conf" ] || touch "$HOME/.config/hypr/local.conf"
+ok "local.conf (personal Hyprland overrides)"
 
 # matugen config needs absolute HOME paths — generated from template, not symlinked
 mkdir -p "$HOME/.config/matugen"

@@ -121,7 +121,7 @@ pasteimg() {
     wl-paste --type image/png > "$name" && echo "Saved to $name"
 }
 
-# ── fetch: matugen-colored fastfetch with arch_small logo + palette ────────────
+# ── fetch: matugen-colored fastfetch with distro logo + palette ──────────────
 fetch() {
     local colors_file="$HOME/.config/zsh/colors.zsh"
     local cfg="/tmp/zsh_fastfetch.jsonc"
@@ -133,6 +133,18 @@ fetch() {
     local c1="${_VC1:-${ZSH_C1:-#ffb4aa}}"
     local c2="${_VC2:-${ZSH_C2:-#e7bdb7}}"
     local c3="${_VC3:-${ZSH_C3:-#77ac6c}}"
+
+    # Detect distro logo
+    local _distro_id=""
+    [[ -f /etc/os-release ]] && _distro_id=$(. /etc/os-release && echo "$ID")
+    local _logo
+    case "$_distro_id" in
+        cachyos)     _logo="CachyOS_small"    ;;
+        endeavouros) _logo="EndeavourOS_small" ;;
+        garuda)      _logo="Garuda_small"      ;;
+        manjaro)     _logo="manjaro_small"     ;;
+        *)           _logo="arch_small"        ;;
+    esac
 
     # Rebuild config only if colors changed or config is missing
     if [[ ! -f "$cfg" ]] || [[ "$colors_file" -nt "$cfg" ]]; then
@@ -159,7 +171,7 @@ PYEOF
 {
   "\$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
   "logo": {
-    "source": "arch_small",
+    "source": "$_logo",
     "color": { "1": "$c1", "2": "$c2" },
     "padding": { "top": 1, "left": 1, "right": 2 }
   },

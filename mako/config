@@ -24,3 +24,7 @@ border-color=#ffffff18
 [urgency=high]
 background-color=#1a000099
 border-color=#ff444433
+
+[app-name="discord"]
+border-color=#5865F233
+background-color=#0d0e1099
