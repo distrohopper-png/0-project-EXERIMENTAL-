@@ -296,9 +296,9 @@ class WallpaperPicker(Gtk.ApplicationWindow):
             # kill cava so it reloads the new gradient config
             subprocess.run(["pkill", "cava"],
                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            # reload colors in all running kitty windows
-            subprocess.run(["kitty", "@", "set-colors", "--all", "--configured"],
-                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            # reload colors in all running kitty windows (non-blocking)
+            subprocess.Popen(["kitty", "@", "set-colors", "--all", "--configured"],
+                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             # close window now that colors are fully written
             GLib.idle_add(self.close)
 
