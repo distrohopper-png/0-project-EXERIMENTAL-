@@ -200,6 +200,9 @@ PanelWindow {
                 root.trackPosBase = 0
                 root.trackWallBase = Date.now()
                 root.trackPlaying = true
+                // Sync real position — overrides the 0 estimate once playerctl responds
+                posQueryer.running = false
+                posQueryer.running = true
                 let parts = key.split("|")
                 if (parts.length >= 2 && parts[0] !== "" && parts[1] !== "") {
                     lyricsFetcher.command = [
@@ -249,11 +252,12 @@ PanelWindow {
             onRead: (data) => {
                 let s = data.trim()
                 if (s === "Playing" && !root.trackPlaying) {
-                    // Resumed: reset wall base to now (pos base already holds pause pos)
                     root.trackWallBase = Date.now()
                     root.trackPlaying = true
+                    // Re-sync position — user may have seeked while paused
+                    posQueryer.running = false
+                    posQueryer.running = true
                 } else if (s !== "Playing" && root.trackPlaying) {
-                    // Paused/stopped: advance pos base to current estimate, freeze clock
                     root.trackPosBase += (Date.now() - root.trackWallBase) / 1000
                     root.trackWallBase = Date.now()
                     root.trackPlaying = false
@@ -271,6 +275,31 @@ PanelWindow {
         onTriggered: statusWatcher.running = true
     }
 
+    // POSITION SYNC — gets real playerctl position to correct wall-clock drift from seeks
+    Process {
+        id: posQueryer
+        command: ["playerctl", "position"]
+        stdout: SplitParser {
+            onRead: (data) => {
+                let pos = parseFloat(data.trim())
+                if (!isNaN(pos) && pos >= 0) {
+                    root.trackPosBase = pos
+                    root.trackWallBase = Date.now()
+                }
+            }
+        }
+    }
+    Timer {
+        id: posResyncTimer
+        interval: 15000
+        repeat: true
+        running: root.musicRunning && root.trackPlaying
+        onTriggered: {
+            posQueryer.running = false
+            posQueryer.running = true
+        }
+    }
+
     // POSITION TIMER — pure wall-clock arithmetic, no process spawning
     Timer {
         id: posTimer
@@ -280,14 +309,14 @@ PanelWindow {
         onTriggered: {
             if (root.lyricsLines.length === 0 || !root.trackPlaying) return
             let pos = root.trackPosBase + (Date.now() - root.trackWallBase) / 1000
-            let idx = 0
+            let idx = -1
             for (let i = 0; i < root.lyricsLines.length; i++) {
                 if (root.lyricsLines[i].time <= pos + 0.2) idx = i
                 else break
             }
             if (idx !== root.lyricsIdx) {
                 root.lyricsIdx = idx
-                root.lyricsCurrentLine = root.lyricsLines[idx].text
+                root.lyricsCurrentLine = idx >= 0 ? root.lyricsLines[idx].text : ""
             }
         }
     }
