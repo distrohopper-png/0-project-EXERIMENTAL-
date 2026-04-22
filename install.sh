@@ -179,6 +179,7 @@ link "$DOTFILES/rofi/powermenu.rasi"                         "$HOME/.config/rofi
 link "$DOTFILES/quickshell/shell.qml"                        "$HOME/.config/quickshell/shell.qml"
 link "$DOTFILES/wallpaper-picker/picker.py"                  "$HOME/.config/wallpaper-picker/picker.py"
 link "$DOTFILES/scripts/lockscreen.py"                       "$HOME/.config/scripts/lockscreen.py"
+link "$DOTFILES/scripts/matrix-rain.py"                      "$HOME/.config/scripts/matrix-rain.py"
 link "$DOTFILES/scripts/lyrics-fetch.py"                     "$HOME/.config/scripts/lyrics-fetch.py"
 link "$DOTFILES/scripts/powermenu.sh"                        "$HOME/.config/scripts/powermenu.sh"
 link "$DOTFILES/scripts/power-popup.py"                      "$HOME/.config/scripts/power-popup.py"
