@@ -280,26 +280,33 @@ class WallpaperPicker(Gtk.ApplicationWindow):
                         "--transition-type", "fade",
                         "--transition-duration", "0.4"],
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        # invalidate fetch cache now so any terminal opened during matugen
+        # rebuilds rather than showing stale colors
+        subprocess.run(["rm", "-f", "/tmp/zsh_fastfetch.jsonc", "/tmp/zsh_palette.sh"])
+        GLib.idle_add(self.status.set_text, "Applying color theme…")
+
         matugen_proc = subprocess.Popen(
             ["matugen", "image", str(dest), "--prefer=saturation"],
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
             start_new_session=True,
         )
-        # Wait for matugen to finish before restarting cava and clearing the
-        # zsh fetch cache — otherwise the new terminal opens before new colors.zsh exists
+
         def _post_matugen():
             matugen_proc.wait()
-            # kill + relaunch cava so it reads the new gradient config
+            # kill cava so it reloads the new gradient config
             subprocess.run(["pkill", "cava"],
                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            subprocess.run(["rm", "-f", "/tmp/zsh_fastfetch.jsonc", "/tmp/zsh_palette.sh"])
+            # reload colors in all running kitty windows
+            subprocess.run(["kitty", "@", "set-colors", "--all", "--configured"],
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            # close window now that colors are fully written
+            GLib.idle_add(self.close)
+
         threading.Thread(target=_post_matugen, daemon=True).start()
         # sync wallpaper to SDDM theme (script needs NOPASSWD sudo)
         subprocess.Popen(["sudo", "/usr/local/bin/sddm-bg-update", str(dest)],
                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
                          start_new_session=True)
-        # close after everything is launched
-        GLib.idle_add(self.close)
 
 
 class App(Gtk.Application):
