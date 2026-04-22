@@ -4,6 +4,10 @@
 input_path  = "{{HOME}}/.config/matugen/templates/zsh-colors.zsh"
 output_path = "{{HOME}}/.config/zsh/colors.zsh"
 
+[templates.kitty]
+input_path  = "{{HOME}}/.config/matugen/templates/kitty.conf"
+output_path = "{{HOME}}/.config/kitty/kitty.conf"
+
 [templates.rofi-theme]
 input_path  = "{{HOME}}/.config/matugen/templates/rofi-theme.rasi"
 output_path = "{{HOME}}/.config/rofi/theme.rasi"

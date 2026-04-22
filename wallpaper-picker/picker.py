@@ -278,6 +278,12 @@ class WallpaperPicker(Gtk.ApplicationWindow):
         subprocess.Popen(["matugen", "image", str(dest), "--prefer=saturation"],
                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
                          start_new_session=True)
+        # restart cava so it picks up the new color config from matugen
+        subprocess.Popen(["pkill", "-USR1", "cava"],
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        # invalidate the zsh fetch cache so next terminal open regenerates with new colors
+        subprocess.Popen(["rm", "-f", "/tmp/zsh_fastfetch.jsonc", "/tmp/zsh_palette.sh"],
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         # sync wallpaper to SDDM theme (script needs NOPASSWD sudo)
         subprocess.Popen(["sudo", "/usr/local/bin/sddm-bg-update", str(dest)],
                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
