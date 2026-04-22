@@ -112,15 +112,24 @@ fetch() {
 
     # Rebuild config only if colors changed or config is missing
     if [[ ! -f "$cfg" ]] || [[ "$colors_file" -nt "$cfg" ]]; then
-        # Build ANSI palette strip from 8 matugen swatches
-        local palette=""
-        for hex in "${ZSH_P1:-$c1}" "${ZSH_P2:-$c2}" "${ZSH_P3:-$c3}" \
-                   "${ZSH_P4:-$c1}" "${ZSH_P5:-$c2}" "${ZSH_P6:-$c3}" \
-                   "${ZSH_P7:-#ff5055}" "${ZSH_P8:-#aaaaaa}"; do
-            local h="${hex#'#'}"
-            local r=$((16#${h:0:2})) g=$((16#${h:2:2})) b=$((16#${h:4:2}))
-            palette+="\\\\e[38;2;${r};${g};${b}m●\\\\e[0m "
-        done
+        # Generate 8-color hue wheel from the primary wallpaper color
+        local palette
+        palette=$(ZSH_PRIMARY="$c1" python3 <<'PYEOF'
+import os, colorsys
+h = os.environ['ZSH_PRIMARY'].lstrip('#')
+r, g, b = int(h[0:2],16)/255, int(h[2:4],16)/255, int(h[4:6],16)/255
+hue, sat, val = colorsys.rgb_to_hsv(r, g, b)
+sat = max(0.70, sat)
+val = max(0.82, val)
+parts = []
+for i in range(8):
+    h2 = (hue + i / 8.0) % 1.0
+    r2, g2, b2 = colorsys.hsv_to_rgb(h2, sat, val)
+    R, G, B = int(r2*255), int(g2*255), int(b2*255)
+    parts.append(f'\\e[38;2;{R};{G};{B}m●\\e[0m')
+print(' '.join(parts))
+PYEOF
+)
 
         cat > "$cfg" <<EOF
 {
