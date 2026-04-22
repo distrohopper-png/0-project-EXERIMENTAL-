@@ -28,7 +28,6 @@ except ImportError:
 
 WALLPAPER  = os.path.expanduser("~/.cache/current-wallpaper")
 BLURRED_WP = os.path.expanduser("~/.cache/current-wallpaper-blurred")
-BG_CACHE   = "/tmp/lockscreen-bg.png"
 
 CSS = """
 * {
@@ -64,10 +63,10 @@ CSS = """
 .pw-dot-pill {
     background-color: rgba(255, 255, 255, 0.07);
     border: 1px solid rgba(255, 255, 255, 0.18);
-    border-radius: 14px;
-    padding: 13px 28px;
+    border-radius: 22px;
+    padding: 0 28px;
     min-width: 280px;
-    min-height: 46px;
+    min-height: 44px;
     transition: border-color 200ms ease, background-color 200ms ease;
 }
 
@@ -182,6 +181,7 @@ class LockWindow(Gtk.ApplicationWindow):
         self._dot_list  = []
         self._bg_pic    = None
         self._dot_pill  = None
+        self._pw_stack  = None
         self._dot_box   = None
         self._pw_hint   = None
         self._pill_rev  = None
@@ -256,22 +256,31 @@ class LockWindow(Gtk.ApplicationWindow):
         self._entry.connect("notify::has-focus", self._on_focus_change)
         center.append(self._entry)
 
-        # Visible dot pill
-        self._dot_pill = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        # Visible dot pill — horizontal, fixed height
+        self._dot_pill = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         self._dot_pill.add_css_class("pw-dot-pill")
         self._dot_pill.set_halign(Gtk.Align.CENTER)
+
+        # Stack crossfades between "enter password" hint and password dots
+        self._pw_stack = Gtk.Stack()
+        self._pw_stack.set_transition_type(Gtk.StackTransitionType.CROSSFADE)
+        self._pw_stack.set_transition_duration(120)
+        self._pw_stack.set_halign(Gtk.Align.FILL)
+        self._pw_stack.set_hexpand(True)
+        self._pw_stack.set_valign(Gtk.Align.CENTER)
 
         self._pw_hint = Gtk.Label(label="enter password")
         self._pw_hint.add_css_class("pw-hint")
         self._pw_hint.set_halign(Gtk.Align.CENTER)
-        self._pw_hint.set_valign(Gtk.Align.CENTER)
-        self._dot_pill.append(self._pw_hint)
+        self._pw_stack.add_named(self._pw_hint, "hint")
 
         self._dot_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
         self._dot_box.set_halign(Gtk.Align.CENTER)
         self._dot_box.set_valign(Gtk.Align.CENTER)
-        self._dot_box.set_visible(False)
-        self._dot_pill.append(self._dot_box)
+        self._pw_stack.add_named(self._dot_box, "dots")
+
+        self._pw_stack.set_visible_child_name("hint")
+        self._dot_pill.append(self._pw_stack)
 
         center.append(self._dot_pill)
 
@@ -292,7 +301,7 @@ class LockWindow(Gtk.ApplicationWindow):
         # Revealer → smooth SLIDE_UP animation on open/close
         self._pill_rev = Gtk.Revealer()
         self._pill_rev.set_transition_type(Gtk.RevealerTransitionType.SLIDE_UP)
-        self._pill_rev.set_transition_duration(220)
+        self._pill_rev.set_transition_duration(360)
         self._pill_rev.set_reveal_child(False)
 
         pill = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
@@ -339,17 +348,18 @@ class LockWindow(Gtk.ApplicationWindow):
         if os.path.isfile(BLURRED_WP):
             self._apply_bg_from(BLURRED_WP)
         elif os.path.isfile(WALLPAPER):
+            self._apply_bg_from(WALLPAPER)  # show instantly; replace with blur when ready
             threading.Thread(target=self._gen_bg, daemon=True).start()
 
     def _gen_bg(self):
         try:
             subprocess.run(
                 ["convert", WALLPAPER, "-filter", "Gaussian",
-                 "-blur", "0x18", "-modulate", "70", BG_CACHE],
+                 "-blur", "0x18", "-modulate", "70", BLURRED_WP],
                 check=True, timeout=10,
                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
             )
-            GLib.idle_add(self._apply_bg_from, BG_CACHE)
+            GLib.idle_add(self._apply_bg_from, BLURRED_WP)
         except Exception:
             pass
 
@@ -367,9 +377,7 @@ class LockWindow(Gtk.ApplicationWindow):
             self._add_dot()
         for _ in range(current - target):
             self._remove_dot()
-        has = len(self._dot_list) > 0
-        self._pw_hint.set_visible(not has)
-        self._dot_box.set_visible(has)
+        self._pw_stack.set_visible_child_name("dots" if self._dot_list else "hint")
 
     def _add_dot(self):
         dot = Gtk.Box()
@@ -384,8 +392,10 @@ class LockWindow(Gtk.ApplicationWindow):
         if not self._dot_list:
             return
         dot = self._dot_list.pop()
-        dot.add_css_class("entering")  # reverse transition → shrinks to nothing
-        GLib.timeout_add(160, lambda d=dot: (self._dot_box.remove(d), False)[1])
+        dot.add_css_class("entering")
+        GLib.timeout_add(160, lambda d=dot: (
+            self._dot_box.remove(d) if d.get_parent() is self._dot_box else None,
+            False)[1])
 
     def _on_focus_change(self, entry, _):
         if entry.has_focus():
