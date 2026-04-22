@@ -1,0 +1,33 @@
+{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+  "logo": {
+    "source": "arch",
+    "color": {
+      "1": "{{colors.primary.dark.hex}}",
+      "2": "{{colors.secondary.dark.hex}}"
+    }
+  },
+  "display": {
+    "separator": "  ",
+    "color": {
+      "keys":   "{{colors.primary.dark.hex}}",
+      "title":  "{{colors.tertiary.dark.hex}}"
+    }
+  },
+  "modules": [
+    { "type": "title",  "format": "{user-name}@{host-name}", "color": { "user": "{{colors.primary.dark.hex}}", "at": "{{colors.outline.dark.hex}}", "host": "{{colors.secondary.dark.hex}}" } },
+    "separator",
+    { "type": "os",           "key": "  OS",      "keyColor": "{{colors.primary.dark.hex}}" },
+    { "type": "kernel",       "key": "  Kernel",  "keyColor": "{{colors.primary.dark.hex}}" },
+    { "type": "wm",           "key": "  WM",      "keyColor": "{{colors.secondary.dark.hex}}" },
+    { "type": "shell",        "key": "  Shell",   "keyColor": "{{colors.secondary.dark.hex}}" },
+    { "type": "terminal",     "key": "  Term",    "keyColor": "{{colors.secondary.dark.hex}}" },
+    { "type": "cpu",          "key": "  CPU",     "keyColor": "{{colors.tertiary.dark.hex}}" },
+    { "type": "gpu",          "key": "  GPU",     "keyColor": "{{colors.tertiary.dark.hex}}" },
+    { "type": "memory",       "key": "  RAM",     "keyColor": "{{colors.tertiary.dark.hex}}" },
+    { "type": "disk",         "key": "  Disk",    "keyColor": "{{colors.outline.dark.hex}}" },
+    { "type": "uptime",       "key": "  Uptime",  "keyColor": "{{colors.outline.dark.hex}}" },
+    "separator",
+    { "type": "colors", "paddingLeft": 2, "symbol": "circle" }
+  ]
+}

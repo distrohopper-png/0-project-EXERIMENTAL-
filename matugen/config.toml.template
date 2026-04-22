@@ -1,0 +1,21 @@
+[config]
+
+[templates.fastfetch]
+input_path  = "{{HOME}}/.config/matugen/templates/fastfetch.jsonc"
+output_path = "{{HOME}}/.config/fastfetch/config.jsonc"
+
+[templates.fastfetch-small]
+input_path  = "{{HOME}}/.config/matugen/templates/fastfetch-small.jsonc"
+output_path = "{{HOME}}/.config/fastfetch/small.jsonc"
+
+[templates.rofi-theme]
+input_path  = "{{HOME}}/.config/matugen/templates/rofi-theme.rasi"
+output_path = "{{HOME}}/.config/rofi/theme.rasi"
+
+[templates.cava]
+input_path  = "{{HOME}}/.config/matugen/templates/cava.conf"
+output_path = "{{HOME}}/.config/cava/config"
+
+[templates.cmatrix]
+input_path  = "{{HOME}}/.config/matugen/templates/cmatrix"
+output_path = "{{HOME}}/.config/cmatrix/color"
