@@ -15,8 +15,9 @@ def boost(hex_in):
     h = hex_in.lstrip('#')
     r,g,b = int(h[0:2],16)/255, int(h[2:4],16)/255, int(h[4:6],16)/255
     hue,sat,val = colorsys.rgb_to_hsv(r,g,b)
-    sat = max(sat, 0.72)
-    val = min(0.92, max(val, 0.80))
+    if sat > 0.10:
+        sat = max(sat, 0.72)
+        val = min(0.92, max(val, 0.80))
     r2,g2,b2 = colorsys.hsv_to_rgb(hue, sat, val)
     return f'#{int(r2*255):02x}{int(g2*255):02x}{int(b2*255):02x}'
 print(boost('${ZSH_C1:-#ffb4aa}'))
