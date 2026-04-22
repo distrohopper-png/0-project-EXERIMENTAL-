@@ -3,3 +3,13 @@ ZSH_C1="{{colors.primary.dark.hex}}"
 ZSH_C2="{{colors.secondary.dark.hex}}"
 ZSH_C3="{{colors.tertiary.dark.hex}}"
 ZSH_C4="{{colors.outline.dark.hex}}"
+
+# Palette strip (8 swatches shown in fetch)
+ZSH_P1="{{colors.primary.dark.hex}}"
+ZSH_P2="{{colors.on_primary_container.dark.hex}}"
+ZSH_P3="{{colors.secondary.dark.hex}}"
+ZSH_P4="{{colors.on_secondary_container.dark.hex}}"
+ZSH_P5="{{colors.tertiary.dark.hex}}"
+ZSH_P6="{{colors.on_tertiary_container.dark.hex}}"
+ZSH_P7="{{colors.error.dark.hex}}"
+ZSH_P8="{{colors.on_surface.dark.hex}}"
