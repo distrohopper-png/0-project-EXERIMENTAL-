@@ -1,5 +1,21 @@
 # ~/.zshrc
 
+# ── Prompt colors (defined early so _reload_colors can call _build_colors) ────
+_pc() {
+    local h="${1#'#'}"
+    printf '%%{\033[38;2;%d;%d;%dm%%}' $((16#${h:0:2})) $((16#${h:2:2})) $((16#${h:4:2}))
+}
+
+_build_colors() {
+    _PC1=$(_pc "${ZSH_C1:-ffb4aa}")
+    _PC2=$(_pc "${ZSH_C2:-e7bdb7}")
+    _PC3=$(_pc "${ZSH_C3:-77ac6c}")
+    _PC4=$(_pc "${ZSH_C4:-504c50}")
+    _PC5=$(_pc "${ZSH_C5:-ffd7d0}")
+    _PR=$'%{\033[0m%}'
+    _PERR=$'%{\033[38;2;255;80;80m%}'
+}
+
 # ── Matugen colors — reloads automatically whenever matugen writes new colors ──
 _COLORS_TS=0
 _reload_colors() {
@@ -140,21 +156,6 @@ EOF
 }
 
 # ── Prompt ────────────────────────────────────────────────────────────────────
-_pc() {
-    local h="${1#'#'}"
-    printf '%%{\033[38;2;%d;%d;%dm%%}' $((16#${h:0:2})) $((16#${h:2:2})) $((16#${h:4:2}))
-}
-
-_build_colors() {
-    _PC1=$(_pc "${ZSH_C1:-ffb4aa}")
-    _PC2=$(_pc "${ZSH_C2:-e7bdb7}")
-    _PC3=$(_pc "${ZSH_C3:-77ac6c}")
-    _PC4=$(_pc "${ZSH_C4:-504c50}")
-    _PC5=$(_pc "${ZSH_C5:-ffd7d0}")
-    _PR=$'%{\033[0m%}'
-    _PERR=$'%{\033[38;2;255;80;80m%}'
-}
-
 _git_info() {
     local branch
     branch=$(git symbolic-ref --short HEAD 2>/dev/null) || \
