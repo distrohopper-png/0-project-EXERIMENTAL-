@@ -1,7 +1,17 @@
 # ~/.zshrc
 
-# ── Matugen colors (sourced first so fetch() has them immediately) ─────────────
-[[ -f "$HOME/.config/zsh/colors.zsh" ]] && source "$HOME/.config/zsh/colors.zsh"
+# ── Matugen colors — reloads automatically whenever matugen writes new colors ──
+_COLORS_TS=0
+_reload_colors() {
+    local f="$HOME/.config/zsh/colors.zsh"
+    [[ -f "$f" ]] || return
+    local ts; ts=$(stat -c %Y "$f" 2>/dev/null) || ts=0
+    (( ts > _COLORS_TS )) || return
+    source "$f"
+    _COLORS_TS=$ts
+    _build_colors
+}
+_reload_colors
 
 # ── Options ───────────────────────────────────────────────────────────────────
 setopt AUTO_CD PROMPT_SUBST
@@ -140,10 +150,10 @@ _build_colors() {
     _PC2=$(_pc "${ZSH_C2:-e7bdb7}")
     _PC3=$(_pc "${ZSH_C3:-77ac6c}")
     _PC4=$(_pc "${ZSH_C4:-504c50}")
+    _PC5=$(_pc "${ZSH_C5:-ffd7d0}")
     _PR=$'%{\033[0m%}'
     _PERR=$'%{\033[38;2;255;80;80m%}'
 }
-_build_colors
 
 _git_info() {
     local branch
@@ -156,11 +166,18 @@ _git_info() {
 
 precmd() {
     local code=$?
+    _reload_colors
     local dir="${PWD/#$HOME/~}"
+    local colored_dir
+    if [[ "$dir" == "~"* ]]; then
+        colored_dir="${_PC5}~${_PC1}${dir:1}"
+    else
+        colored_dir="${_PC1}${dir}"
+    fi
     local git=$(_git_info)
     local arrow
     [[ $code -eq 0 ]] && arrow="${_PC3}❯${_PR}" || arrow="${_PERR}❯${_PR}"
-    PROMPT="${_PC4}╭─${_PR} ${_PC1}${dir}${_PR}${git}
+    PROMPT="${_PC4}╭─${_PR} ${colored_dir}${_PR}${git}
 ${_PC4}╰─${_PR}${arrow} "
 }
 
