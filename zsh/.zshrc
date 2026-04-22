@@ -43,8 +43,8 @@ _COLORS_TS=0
 _reload_colors() {
     local f="$HOME/.config/zsh/colors.zsh"
     [[ -f "$f" ]] || return
-    local ts; ts=$(stat -c %Y "$f" 2>/dev/null) || ts=0
-    (( ts > _COLORS_TS )) || return
+    local ts; ts=$(stat -c %y "$f" 2>/dev/null) || ts=0
+    [[ "$ts" == "$_COLORS_TS" ]] && return
     source "$f"
     _COLORS_TS=$ts
     _build_colors
@@ -175,6 +175,7 @@ PYEOF
     { "type": "cpu",    "key": "  cpu", "keyColor": "$c2" },
     { "type": "gpu",    "key": "  gpu", "keyColor": "$c2",
       "detectionMethod": "pci", "hideType": "integrated" },
+    { "type": "shell",  "key": "  shell", "keyColor": "$c3" },
     { "type": "memory", "key": "  ram", "keyColor": "$c3" },
     "break",
     { "type": "command", "key": "  ", "keyColor": "$c1",
