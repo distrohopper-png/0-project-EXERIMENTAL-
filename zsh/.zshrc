@@ -20,14 +20,17 @@ def boost(hex_in):
     r2,g2,b2 = colorsys.hsv_to_rgb(hue, sat, val)
     return f'#{int(r2*255):02x}{int(g2*255):02x}{int(b2*255):02x}'
 print(boost('${ZSH_C1:-#ffb4aa}'))
+print(boost('${ZSH_C2:-#e7bdb7}'))
 print(boost('${ZSH_C3:-#77ac6c}'))
 " 2>/dev/null)
     _VC1=$(echo "$_vivid" | sed -n '1p')
-    _VC3=$(echo "$_vivid" | sed -n '2p')
+    _VC2=$(echo "$_vivid" | sed -n '2p')
+    _VC3=$(echo "$_vivid" | sed -n '3p')
     [[ -n "$_VC1" ]] || _VC1="${ZSH_C1:-#ffb4aa}"
+    [[ -n "$_VC2" ]] || _VC2="${ZSH_C2:-#e7bdb7}"
     [[ -n "$_VC3" ]] || _VC3="${ZSH_C3:-#77ac6c}"
     _PC1=$(_pc "$_VC1")
-    _PC2=$(_pc "${ZSH_C2:-e7bdb7}")
+    _PC2=$(_pc "$_VC2")
     _PC3=$(_pc "$_VC3")
     _PC4=$(_pc "${ZSH_C4:-504c50}")
     _PC5=$(_pc "${ZSH_C5:-ffd7d0}")
@@ -127,7 +130,7 @@ fetch() {
     _build_colors
 
     local c1="${_VC1:-${ZSH_C1:-#ffb4aa}}"
-    local c2="${ZSH_C2:-#e7bdb7}"
+    local c2="${_VC2:-${ZSH_C2:-#e7bdb7}}"
     local c3="${_VC3:-${ZSH_C3:-#77ac6c}}"
 
     # Rebuild config only if colors changed or config is missing
