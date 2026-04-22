@@ -111,6 +111,8 @@ PACMAN_PKGS=(
 
     # Audio
     pipewire
+    pipewire-pulse
+    pipewire-alsa
     wireplumber
 
     # Screenshot + annotation
