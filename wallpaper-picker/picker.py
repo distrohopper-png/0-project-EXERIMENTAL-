@@ -264,17 +264,22 @@ class WallpaperPicker(Gtk.ApplicationWindow):
             start_new_session=True,
         )
 
-        # start awww-daemon if not running
-        subprocess.Popen(["awww-daemon"],
-                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                         start_new_session=True)
-        time.sleep(0.2)
-        # spawn with start_new_session so they survive GTK exit
-        subprocess.Popen(["awww", "img", str(dest),
-                          "--transition-type", "fade",
-                          "--transition-duration", "0.4"],
-                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                         start_new_session=True)
+        # only start daemon if not already running — restarting kills the existing one
+        daemon_running = subprocess.run(
+            ["pgrep", "-x", "awww-daemon"],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+        ).returncode == 0
+        if not daemon_running:
+            subprocess.Popen(["awww-daemon"],
+                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                             start_new_session=True)
+            time.sleep(1.0)  # give fresh daemon time to initialize
+
+        subprocess.run(["awww", "img", str(dest),
+                        "--resize", "crop",
+                        "--transition-type", "fade",
+                        "--transition-duration", "0.4"],
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         matugen_proc = subprocess.Popen(
             ["matugen", "image", str(dest), "--prefer=saturation"],
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
