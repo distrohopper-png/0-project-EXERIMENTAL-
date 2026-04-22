@@ -126,7 +126,7 @@ for i in range(8):
     h2 = (hue + i / 8.0) % 1.0
     r2, g2, b2 = colorsys.hsv_to_rgb(h2, sat, val)
     R, G, B = int(r2*255), int(g2*255), int(b2*255)
-    parts.append(f'\\e[38;2;{R};{G};{B}m●\\e[0m')
+    parts.append(f'\\\\e[38;2;{R};{G};{B}m●\\\\e[0m')
 print(' '.join(parts))
 PYEOF
 )
