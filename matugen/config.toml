@@ -1,0 +1,13 @@
+[config]
+
+[templates.fastfetch]
+input_path  = "/home/arch/.config/matugen/templates/fastfetch.jsonc"
+output_path = "/home/arch/.config/fastfetch/config.jsonc"
+
+[templates.fastfetch-small]
+input_path  = "/home/arch/.config/matugen/templates/fastfetch-small.jsonc"
+output_path = "/home/arch/.config/fastfetch/small.jsonc"
+
+[templates.rofi-theme]
+input_path  = "/home/arch/.config/matugen/templates/rofi-theme.rasi"
+output_path = "/home/arch/.config/rofi/theme.rasi"

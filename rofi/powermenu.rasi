@@ -1,0 +1,47 @@
+* {
+    background-color: transparent;
+    text-color:       rgba(255, 255, 255, 0.85);
+}
+
+window {
+    location:         southeast;
+    anchor:           southeast;
+    x-offset:         -20px;
+    y-offset:         -20px;
+    width:            190px;
+    background-color: rgba(10, 10, 10, 0.88);
+    border:           1px solid rgba(255, 255, 255, 0.10);
+    border-radius:    16px;
+    padding:          8px;
+}
+
+mainbox {
+    background-color: transparent;
+    children:         [listview];
+    spacing:          0;
+}
+
+listview {
+    background-color: transparent;
+    lines:            4;
+    spacing:          2px;
+    scrollbar:        false;
+}
+
+element {
+    background-color: transparent;
+    border-radius:    10px;
+    padding:          10px 14px;
+    cursor:           pointer;
+}
+
+element selected {
+    background-color: rgba(255, 255, 255, 0.10);
+}
+
+element-text {
+    background-color: transparent;
+    text-color:       inherit;
+    vertical-align:   0.5;
+    font:             "JetBrains Mono 12";
+}

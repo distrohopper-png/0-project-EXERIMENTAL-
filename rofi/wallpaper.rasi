@@ -1,0 +1,85 @@
+* {
+    bg:         #0d0d0dee;
+    bg-alt:     #161616dd;
+    border-col: #ffffff18;
+    fg:         #e0e0e0;
+    fg-dim:     #666666;
+    accent:     #ffb4aa;
+    sel:        #ffffff14;
+
+    background-color:   transparent;
+    text-color:         @fg;
+}
+
+window {
+    background-color:   @bg;
+    border:             1px solid;
+    border-color:       @border-col;
+    border-radius:      18px;
+    width:              900px;
+    padding:            16px;
+    location:           center;
+    anchor:             center;
+}
+
+mainbox {
+    background-color:   transparent;
+    spacing:            10px;
+    children:           [inputbar, listview];
+}
+
+inputbar {
+    background-color:   @bg-alt;
+    border:             1px solid;
+    border-color:       @border-col;
+    border-radius:      12px;
+    padding:            12px 16px;
+    spacing:            10px;
+    children:           [prompt, entry];
+}
+
+prompt {
+    text-color:         @accent;
+    font:               "JetBrains Mono Bold 12";
+}
+
+entry {
+    text-color:         @fg;
+    placeholder:        "Search...";
+    placeholder-color:  @fg-dim;
+}
+
+listview {
+    background-color:   transparent;
+    spacing:            8px;
+    scrollbar:          false;
+    lines:              3;
+    columns:            4;
+}
+
+element {
+    background-color:   transparent;
+    border-radius:      12px;
+    padding:            6px;
+    orientation:        vertical;
+    children:           [element-icon, element-text];
+    cursor:             pointer;
+}
+
+element selected {
+    background-color:   @sel;
+    border:             1px solid;
+    border-color:       @accent;
+}
+
+element-icon {
+    size:               190px;
+    border-radius:      8px;
+}
+
+element-text {
+    horizontal-align:   0.5;
+    padding:            4px 0 0 0;
+    font:               "JetBrains Mono 9";
+    color:              @fg-dim;
+}

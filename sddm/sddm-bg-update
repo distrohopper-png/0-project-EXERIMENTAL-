@@ -1,0 +1,15 @@
+#!/bin/bash
+# Called by wallpaper picker to sync the current wallpaper to the SDDM theme.
+# Needs to run as root — add to sudoers:
+#   arch ALL=(ALL) NOPASSWD: /usr/local/bin/sddm-bg-update
+set -e
+SRC="$1"
+DEST="/usr/share/sddm/themes/hyprarch/background.jpg"
+
+if [ -z "$SRC" ] || [ ! -f "$SRC" ]; then
+    echo "Usage: sddm-bg-update <image-path>" >&2
+    exit 1
+fi
+
+cp "$SRC" "$DEST"
+chmod 644 "$DEST"

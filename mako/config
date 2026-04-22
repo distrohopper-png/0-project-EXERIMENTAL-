@@ -1,0 +1,26 @@
+font=JetBrains Mono 12
+background-color=#00000099
+text-color=#ffffffdd
+border-color=#ffffff18
+border-radius=24
+border-size=1
+padding=10,18
+margin=10
+width=320
+height=80
+anchor=top-right
+
+default-timeout=5000
+ignore-timeout=0
+
+[urgency=low]
+background-color=#00000088
+border-color=#ffffff12
+
+[urgency=normal]
+background-color=#00000099
+border-color=#ffffff18
+
+[urgency=high]
+background-color=#1a000099
+border-color=#ff444433

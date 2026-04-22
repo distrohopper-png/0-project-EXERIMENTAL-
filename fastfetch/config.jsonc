@@ -1,0 +1,33 @@
+{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+  "logo": {
+    "source": "arch",
+    "color": {
+      "1": "#ffb4aa",
+      "2": "#e7bdb7"
+    }
+  },
+  "display": {
+    "separator": "  ",
+    "color": {
+      "keys":   "#ffb4aa",
+      "title":  "#dfc38c"
+    }
+  },
+  "modules": [
+    { "type": "title",  "format": "{user-name}@{host-name}", "color": { "user": "#ffb4aa", "at": "#a08c8a", "host": "#e7bdb7" } },
+    "separator",
+    { "type": "os",           "key": "  OS",      "keyColor": "#ffb4aa" },
+    { "type": "kernel",       "key": "  Kernel",  "keyColor": "#ffb4aa" },
+    { "type": "wm",           "key": "  WM",      "keyColor": "#e7bdb7" },
+    { "type": "shell",        "key": "  Shell",   "keyColor": "#e7bdb7" },
+    { "type": "terminal",     "key": "  Term",    "keyColor": "#e7bdb7" },
+    { "type": "cpu",          "key": "  CPU",     "keyColor": "#dfc38c" },
+    { "type": "gpu",          "key": "  GPU",     "keyColor": "#dfc38c" },
+    { "type": "memory",       "key": "  RAM",     "keyColor": "#dfc38c" },
+    { "type": "disk",         "key": "  Disk",    "keyColor": "#a08c8a" },
+    { "type": "uptime",       "key": "  Uptime",  "keyColor": "#a08c8a" },
+    "separator",
+    { "type": "colors", "paddingLeft": 2, "symbol": "circle" }
+  ]
+}

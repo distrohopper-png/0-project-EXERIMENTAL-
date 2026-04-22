@@ -1,0 +1,12 @@
+configuration {
+    modi:                       "drun,filebrowser,window";
+    show-icons:                 true;
+    drun-display-format:        "{name}";
+    display-drun:               "Apps";
+    display-filebrowser:        "Files";
+    display-window:             "Windows";
+    font:                       "JetBrains Mono 12";
+    click-to-exit:              true;
+}
+
+@theme "~/.config/rofi/theme.rasi"
