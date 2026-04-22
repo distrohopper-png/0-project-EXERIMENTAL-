@@ -92,6 +92,9 @@ PACMAN_PKGS=(
 
     # Terminal + shell
     kitty
+    zsh
+    zsh-syntax-highlighting
+    zsh-autosuggestions
 
     # Launcher
     rofi
@@ -181,17 +184,17 @@ link "$DOTFILES/scripts/powermenu.sh"                        "$HOME/.config/scri
 link "$DOTFILES/scripts/power-popup.py"                      "$HOME/.config/scripts/power-popup.py"
 link "$DOTFILES/fastfetch/config.jsonc"                      "$HOME/.config/fastfetch/config.jsonc"
 link "$DOTFILES/fastfetch/small.jsonc"                       "$HOME/.config/fastfetch/small.jsonc"
-link "$DOTFILES/matugen/templates/fastfetch.jsonc"           "$HOME/.config/matugen/templates/fastfetch.jsonc"
-link "$DOTFILES/matugen/templates/fastfetch-small.jsonc"     "$HOME/.config/matugen/templates/fastfetch-small.jsonc"
+link "$DOTFILES/matugen/templates/zsh-colors.zsh"            "$HOME/.config/matugen/templates/zsh-colors.zsh"
 link "$DOTFILES/matugen/templates/rofi-theme.rasi"           "$HOME/.config/matugen/templates/rofi-theme.rasi"
 link "$DOTFILES/matugen/templates/cava.conf"                 "$HOME/.config/matugen/templates/cava.conf"
 link "$DOTFILES/matugen/templates/cmatrix"                   "$HOME/.config/matugen/templates/cmatrix"
 link "$DOTFILES/wlogout/layout"                              "$HOME/.config/wlogout/layout"
 link "$DOTFILES/wlogout/style.css"                           "$HOME/.config/wlogout/style.css"
-link "$DOTFILES/.bashrc"                                     "$HOME/.bashrc"
+link "$DOTFILES/zsh/.zshrc"                                  "$HOME/.zshrc"
 
 # Directories without config files
 mkdir -p "$HOME/.config/cmatrix"
+mkdir -p "$HOME/.config/zsh"
 mkdir -p "$HOME/Pictures/Wallpapers"
 ok "created required directories"
 
@@ -206,6 +209,16 @@ if [ -f "$DOTFILES/wireplumber/wireplumber.conf.d/50-fix-profiles.conf" ]; then
     link "$DOTFILES/wireplumber/wireplumber.conf.d/50-fix-profiles.conf" \
          "$HOME/.config/wireplumber/wireplumber.conf.d/50-fix-profiles.conf"
     warn "wireplumber audio fix linked — edit or delete if your hardware differs"
+fi
+
+# ── ZSH DEFAULT SHELL ────────────────────────────────────────────────────────
+ZSH_BIN=$(command -v zsh 2>/dev/null)
+if [ -n "$ZSH_BIN" ] && [ "$SHELL" != "$ZSH_BIN" ]; then
+    echo ""
+    echo "Setting zsh as default shell..."
+    chsh -s "$ZSH_BIN" \
+        && ok "zsh set as default shell (takes effect on next login)" \
+        || warn "Could not set zsh — run manually: chsh -s $ZSH_BIN"
 fi
 
 # ── SDDM NOPASSWD SCRIPT ─────────────────────────────────────────────────────
