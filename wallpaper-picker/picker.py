@@ -292,7 +292,43 @@ class WallpaperPicker(Gtk.ApplicationWindow):
         )
 
         def _post_matugen():
+            import re
             matugen_proc.wait()
+
+            # If wallpaper is near-achromatic, matugen picks up faint hue undertones
+            # and Material You amplifies them to vivid arbitrary colors (e.g. blue on grey).
+            # Detect via ImageMagick mean saturation; if low, cap all hex colors in
+            # colors.zsh at sat ≤ 0.15 so the scheme stays neutral grey.
+            try:
+                avg_sat_str = subprocess.run(
+                    ["convert", str(dest),
+                     "-colorspace", "HSL",
+                     "-channel", "S", "-separate",
+                     "-format", "%[fx:mean]", "info:"],
+                    capture_output=True, text=True, timeout=15
+                ).stdout.strip()
+                avg_sat = float(avg_sat_str) if avg_sat_str else 1.0
+            except Exception:
+                avg_sat = 1.0
+
+            if avg_sat < 0.12:
+                colors_file = Path.home() / ".config" / "zsh" / "colors.zsh"
+                if colors_file.exists():
+                    text = colors_file.read_text()
+                    def _desaturate(m):
+                        import colorsys
+                        hex_color = m.group(1)
+                        r = int(hex_color[0:2], 16) / 255
+                        g = int(hex_color[2:4], 16) / 255
+                        b = int(hex_color[4:6], 16) / 255
+                        hue, sat, val = colorsys.rgb_to_hsv(r, g, b)
+                        if sat > 0.15:
+                            sat = 0.15
+                        r2, g2, b2 = colorsys.hsv_to_rgb(hue, sat, val)
+                        return f'"#{int(r2*255):02x}{int(g2*255):02x}{int(b2*255):02x}"'
+                    text = re.sub(r'"#([0-9a-fA-F]{6})"', _desaturate, text)
+                    colors_file.write_text(text)
+
             # kill cava so it reloads the new gradient config
             subprocess.run(["pkill", "cava"],
                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
