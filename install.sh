@@ -185,6 +185,7 @@ link "$DOTFILES/scripts/power-popup.py"                      "$HOME/.config/scri
 link "$DOTFILES/fastfetch/config.jsonc"                      "$HOME/.config/fastfetch/config.jsonc"
 link "$DOTFILES/fastfetch/small.jsonc"                       "$HOME/.config/fastfetch/small.jsonc"
 link "$DOTFILES/matugen/templates/zsh-colors.zsh"            "$HOME/.config/matugen/templates/zsh-colors.zsh"
+link "$DOTFILES/matugen/templates/kitty.conf"                "$HOME/.config/matugen/templates/kitty.conf"
 link "$DOTFILES/matugen/templates/rofi-theme.rasi"           "$HOME/.config/matugen/templates/rofi-theme.rasi"
 link "$DOTFILES/matugen/templates/cava.conf"                 "$HOME/.config/matugen/templates/cava.conf"
 link "$DOTFILES/matugen/templates/cmatrix"                   "$HOME/.config/matugen/templates/cmatrix"
