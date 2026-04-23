@@ -286,7 +286,7 @@ class WallpaperPicker(Gtk.ApplicationWindow):
         GLib.idle_add(self.status.set_text, "Applying color theme…")
 
         matugen_proc = subprocess.Popen(
-            ["matugen", "image", str(dest), "--prefer=saturation"],
+            ["matugen", "image", str(dest)],
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
             start_new_session=True,
         )
