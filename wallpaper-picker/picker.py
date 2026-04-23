@@ -338,7 +338,7 @@ class WallpaperPicker(Gtk.ApplicationWindow):
                         dr, dg, db = _cs.hsv_to_rgb(dom_hue / 360.0, 0.60, 0.72)
                         dom_hex = f"#{int(dr*255):02x}{int(dg*255):02x}{int(db*255):02x}"
                         subprocess.run(
-                            ["matugen", "color", "--color", dom_hex],
+                            ["matugen", "color", "hex", dom_hex],
                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
                             timeout=30
                         )
