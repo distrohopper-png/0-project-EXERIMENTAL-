@@ -238,6 +238,7 @@ class WallpaperPicker(Gtk.ApplicationWindow):
         url = w["path"]
         ext = url.rsplit(".", 1)[-1]
         dest = WALLPAPER_DIR / f"{w['id']}.{ext}"
+        thumb = CACHE_DIR / f"{w['id']}_thumb.jpg"
         try:
             if not dest.exists():
                 GLib.idle_add(self.status.set_text, "Downloading...")
@@ -301,11 +302,13 @@ class WallpaperPicker(Gtk.ApplicationWindow):
             # Find the dominant hue of the wallpaper by counting pixels per hue bucket,
             # ignoring very dark or desaturated pixels so background noise doesn't win.
             def _dominant_hue(path):
+                # Prefer thumbnail for speed (already small); fall back to full image
+                src = str(thumb) if thumb.exists() else str(path)
                 try:
                     out = subprocess.check_output(
-                        ["convert", str(path), "-resize", "80x80!",
+                        ["convert", src, "-resize", "60x60!",
                          "-depth", "8", "-colorspace", "sRGB", "txt:-"],
-                        text=True, timeout=20
+                        text=True, timeout=15
                     )
                     buckets = [0] * 36
                     for line in out.splitlines():
@@ -344,23 +347,31 @@ class WallpaperPicker(Gtk.ApplicationWindow):
                             timeout=30
                         )
 
-            # If wallpaper is near-achromatic, matugen picks up faint hue undertones
-            # and Material You amplifies them to vivid arbitrary colors (e.g. blue on grey).
-            # Detect via ImageMagick mean saturation; if low, cap all hex colors in
-            # colors.zsh at sat ≤ 0.15 so the scheme stays neutral grey.
+            # For light achromatic wallpapers (white/grey) matugen amplifies faint
+            # undertones into vivid arbitrary colours. Detect with HSL saturation +
+            # HSB brightness: only apply neutral palette if the image is both
+            # unsaturated AND light (bright). Dark near-black wallpapers also have
+            # near-zero saturation but should keep whatever matugen generated.
             try:
+                src = str(thumb) if thumb.exists() else str(dest)
                 avg_sat_str = subprocess.run(
-                    ["convert", str(dest),
-                     "-colorspace", "HSL",
+                    ["convert", src, "-colorspace", "HSL",
                      "-channel", "S", "-separate",
                      "-format", "%[fx:mean]", "info:"],
                     capture_output=True, text=True, timeout=15
                 ).stdout.strip()
+                avg_bri_str = subprocess.run(
+                    ["convert", src, "-colorspace", "HSB",
+                     "-channel", "B", "-separate",
+                     "-format", "%[fx:mean]", "info:"],
+                    capture_output=True, text=True, timeout=15
+                ).stdout.strip()
                 avg_sat = float(avg_sat_str) if avg_sat_str else 1.0
+                avg_bri = float(avg_bri_str) if avg_bri_str else 1.0
             except Exception:
-                avg_sat = 1.0
+                avg_sat, avg_bri = 1.0, 1.0
 
-            if avg_sat < 0.12:
+            if avg_sat < 0.12 and avg_bri > 0.35:
                 # Achromatic/white/grey wallpaper — write a neutral palette that's
                 # readable on dark backgrounds instead of letting matugen's arbitrary
                 # tint (or near-invisible desaturated colours) through.
