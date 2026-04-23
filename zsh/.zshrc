@@ -14,18 +14,22 @@ _build_colors() {
     local _vivid
     _vivid=$(python3 -c "
 import colorsys
-def boost(hex_in, min_sat, val_min, val_max):
+def boost(hex_in, min_sat, val_min, val_max, gentle):
     h = hex_in.lstrip('#')
     r,g,b = int(h[0:2],16)/255, int(h[2:4],16)/255, int(h[4:6],16)/255
     hue,sat,val = colorsys.rgb_to_hsv(r,g,b)
-    if sat > 0.10:
+    if gentle and sat > 0.05:
+        sat = min(sat * 1.4, 0.30)
+        val = min(val_max, max(val, val_min))
+    elif not gentle and sat > 0.10:
         sat = max(sat, min_sat)
         val = min(val_max, max(val, val_min))
     r2,g2,b2 = colorsys.hsv_to_rgb(hue, sat, val)
     return f'#{int(r2*255):02x}{int(g2*255):02x}{int(b2*255):02x}'
-print(boost('${ZSH_C1:-#ffb4aa}', 0.72, 0.82, 0.94))
-print(boost('${ZSH_C2:-#e7bdb7}', 0.48, 0.58, 0.72))
-print(boost('${ZSH_C3:-#77ac6c}', 0.68, 0.80, 0.92))
+gentle = '${ZSH_ACHROMATIC:-0}' == '1'
+print(boost('${ZSH_C1:-#ffb4aa}', 0.72, 0.82, 0.94, gentle))
+print(boost('${ZSH_C2:-#e7bdb7}', 0.48, 0.58, 0.72, gentle))
+print(boost('${ZSH_C3:-#77ac6c}', 0.68, 0.80, 0.92, gentle))
 " 2>/dev/null)
     _VC1=$(echo "$_vivid" | sed -n '1p')
     _VC2=$(echo "$_vivid" | sed -n '2p')
