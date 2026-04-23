@@ -292,8 +292,56 @@ class WallpaperPicker(Gtk.ApplicationWindow):
         )
 
         def _post_matugen():
-            import re
+            import re, colorsys as _cs
             matugen_proc.wait()
+
+            colors_file = Path.home() / ".config" / "zsh" / "colors.zsh"
+
+            # Find the dominant hue of the wallpaper by counting pixels per hue bucket,
+            # ignoring very dark or desaturated pixels so background noise doesn't win.
+            def _dominant_hue(path):
+                try:
+                    out = subprocess.check_output(
+                        ["convert", str(path), "-resize", "80x80!",
+                         "-depth", "8", "-colorspace", "sRGB", "txt:-"],
+                        text=True, timeout=20
+                    )
+                    buckets = [0] * 36
+                    for line in out.splitlines():
+                        m = re.search(r'#([0-9A-Fa-f]{6})', line)
+                        if not m:
+                            continue
+                        c = m.group(1)
+                        rv, gv, bv = int(c[0:2],16)/255, int(c[2:4],16)/255, int(c[4:6],16)/255
+                        hv, sv, vv = _cs.rgb_to_hsv(rv, gv, bv)
+                        if sv > 0.10 and vv > 0.20:
+                            buckets[int(hv * 36) % 36] += 1
+                    return None if max(buckets) == 0 else buckets.index(max(buckets)) * 10
+                except Exception:
+                    return None
+
+            dom_hue = _dominant_hue(dest)
+
+            # If matugen's primary color is more than 55° away from the dominant wallpaper
+            # hue (e.g. wallpaper is yellow but matugen grabbed a vivid blue accent object),
+            # re-run matugen in color mode seeded with the actual dominant hue.
+            if dom_hue is not None and colors_file.exists():
+                m = re.search(r'ZSH_C1="#([0-9a-fA-F]{6})"', colors_file.read_text())
+                if m:
+                    c = m.group(1)
+                    c1_hue = _cs.rgb_to_hsv(
+                        int(c[0:2],16)/255, int(c[2:4],16)/255, int(c[4:6],16)/255
+                    )[0] * 360
+                    diff = abs(c1_hue - dom_hue)
+                    diff = min(diff, 360 - diff)
+                    if diff > 55:
+                        dr, dg, db = _cs.hsv_to_rgb(dom_hue / 360.0, 0.60, 0.72)
+                        dom_hex = f"#{int(dr*255):02x}{int(dg*255):02x}{int(db*255):02x}"
+                        subprocess.run(
+                            ["matugen", "color", "--color", dom_hex],
+                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                            timeout=30
+                        )
 
             # If wallpaper is near-achromatic, matugen picks up faint hue undertones
             # and Material You amplifies them to vivid arbitrary colors (e.g. blue on grey).
@@ -312,7 +360,6 @@ class WallpaperPicker(Gtk.ApplicationWindow):
                 avg_sat = 1.0
 
             if avg_sat < 0.12:
-                colors_file = Path.home() / ".config" / "zsh" / "colors.zsh"
                 if colors_file.exists():
                     text = colors_file.read_text()
                     def _desaturate(m):
