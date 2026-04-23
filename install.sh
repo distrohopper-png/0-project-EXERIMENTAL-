@@ -89,6 +89,7 @@ PACMAN_PKGS=(
     # Core compositor
     hyprland
     hyprsunset
+    brightnessctl
 
     # Terminal + shell
     kitty
