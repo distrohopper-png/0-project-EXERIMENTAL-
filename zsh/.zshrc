@@ -7,22 +7,25 @@ _pc() {
 }
 
 _build_colors() {
-    # Material You "on" colors are pastels — boost sat/val so they look vivid on dark bg
+    # Material You "on" colors are pastels — boost sat/val so they look vivid on dark bg.
+    # C1 (path): most vivid. C2 (git/tilde): softer/dimmer so it's visually distinct from C1.
+    # C3 (arrow): vivid. Using different targets prevents single-hue wallpapers (e.g. green)
+    # from collapsing C1 and C2 to the same colour.
     local _vivid
     _vivid=$(python3 -c "
 import colorsys
-def boost(hex_in):
+def boost(hex_in, min_sat, val_min, val_max):
     h = hex_in.lstrip('#')
     r,g,b = int(h[0:2],16)/255, int(h[2:4],16)/255, int(h[4:6],16)/255
     hue,sat,val = colorsys.rgb_to_hsv(r,g,b)
     if sat > 0.10:
-        sat = max(sat, 0.72)
-        val = min(0.92, max(val, 0.80))
+        sat = max(sat, min_sat)
+        val = min(val_max, max(val, val_min))
     r2,g2,b2 = colorsys.hsv_to_rgb(hue, sat, val)
     return f'#{int(r2*255):02x}{int(g2*255):02x}{int(b2*255):02x}'
-print(boost('${ZSH_C1:-#ffb4aa}'))
-print(boost('${ZSH_C2:-#e7bdb7}'))
-print(boost('${ZSH_C3:-#77ac6c}'))
+print(boost('${ZSH_C1:-#ffb4aa}', 0.72, 0.82, 0.94))
+print(boost('${ZSH_C2:-#e7bdb7}', 0.48, 0.58, 0.72))
+print(boost('${ZSH_C3:-#77ac6c}', 0.68, 0.80, 0.92))
 " 2>/dev/null)
     _VC1=$(echo "$_vivid" | sed -n '1p')
     _VC2=$(echo "$_vivid" | sed -n '2p')
