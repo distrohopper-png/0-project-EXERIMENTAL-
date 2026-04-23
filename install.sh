@@ -185,6 +185,7 @@ link "$DOTFILES/scripts/lyrics-fetch.py"                     "$HOME/.config/scri
 link "$DOTFILES/scripts/powermenu.sh"                        "$HOME/.config/scripts/powermenu.sh"
 link "$DOTFILES/scripts/power-popup.py"                      "$HOME/.config/scripts/power-popup.py"
 link "$DOTFILES/scripts/update-notify.sh"                    "$HOME/.config/scripts/update-notify.sh"
+link "$DOTFILES/scripts/quotes-editor.py"                    "$HOME/.config/scripts/quotes-editor.py"
 link "$DOTFILES/fastfetch/config.jsonc"                      "$HOME/.config/fastfetch/config.jsonc"
 link "$DOTFILES/fastfetch/small.jsonc"                       "$HOME/.config/fastfetch/small.jsonc"
 link "$DOTFILES/matugen/templates/zsh-colors.zsh"            "$HOME/.config/matugen/templates/zsh-colors.zsh"
@@ -212,6 +213,12 @@ mkdir -p "$HOME/.config/matugen"
 sed "s|{{HOME}}|$HOME|g" "$DOTFILES/matugen/config.toml.template" \
     > "$HOME/.config/matugen/config.toml"
 ok "generated matugen/config.toml"
+
+# quotes.json — copy on first install (user edits via quotes-editor, not symlinked)
+if [ ! -f "$HOME/.config/quickshell/quotes.json" ]; then
+    cp "$DOTFILES/quickshell/quotes.json" "$HOME/.config/quickshell/quotes.json"
+    ok "quotes.json (quote editor config)"
+fi
 
 # wireplumber audio fix — hardware-specific, only link if present
 if [ -f "$DOTFILES/wireplumber/wireplumber.conf.d/50-fix-profiles.conf" ]; then

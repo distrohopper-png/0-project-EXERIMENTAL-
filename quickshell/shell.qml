@@ -33,34 +33,23 @@ PanelWindow {
     property double trackPosBase: 0    // playback position in seconds at trackWallBase
     property bool trackPlaying: false
 
-    // Rotating quotes list — cycles through instead of random shuf
+    // Rotating quotes — loaded from ~/.config/quickshell/quotes.json (fallback hardcoded)
     property var quotes: [
-        "I use Arch btw",
-        "404 motivation not found",
-        "works on my machine",
-        "git blame yourself",
-        "it's not a bug, it's a feature",
-        "have you tried turning it off and on again",
-        "sudo make me a sandwich",
-        "there are 2 types of people",
-        "still compiling...",
-        "segmentation fault (core dumped)",
-        "why is it always DNS",
-        "to be or not to be",
-        "technically correct is the best kind of correct",
-        "rm -rf node_modules",
-        "it works on my machine → ship the machine",
-        "coffee.exe has stopped responding",
-        "undefined is not a function",
-        "have you met my friend NaN",
-        "while (alive) { eat(); sleep(); code(); }",
+        "I use Arch btw", "404 motivation not found", "works on my machine",
+        "git blame yourself", "it's not a bug, it's a feature",
+        "have you tried turning it off and on again", "sudo make me a sandwich",
+        "still compiling...", "segmentation fault (core dumped)", "why is it always DNS",
+        "undefined is not a function", "while (alive) { eat(); sleep(); code(); }",
         "0 bugs found... in my opinion"
     ]
     property int quoteIndex: 0
     property string currentQuote: quotes[0]
+    property int quoteInterval: 300000
+    property var pendingQuotes: []
 
     Timer {
-        interval: 300000
+        id: quoteRotateTimer
+        interval: root.quoteInterval
         running: true
         repeat: true
         triggeredOnStart: false
@@ -68,6 +57,56 @@ PanelWindow {
             quoteIndex = (quoteIndex + 1) % root.quotes.length
             root.currentQuote = root.quotes[quoteIndex]
         }
+    }
+
+    // Read quotes.json; re-checked every 30s so edits apply without restarting
+    Process {
+        id: quotesLoader
+        command: ["python3", "-c",
+            "import json,os\n" +
+            "try:\n" +
+            "    d=json.load(open(os.path.expanduser('~/.config/quickshell/quotes.json')))\n" +
+            "    [print('Q:'+q) for q in d.get('quotes',[])]\n" +
+            "    print('I:'+str(d.get('interval_sec',300)))\n" +
+            "except: pass"
+        ]
+        running: true
+        stdout: SplitParser {
+            onRead: (data) => {
+                if (data.startsWith("Q:"))
+                    root.pendingQuotes = root.pendingQuotes.concat([data.substring(2)])
+                else if (data.startsWith("I:")) {
+                    var iv = parseInt(data.substring(2))
+                    if (!isNaN(iv) && iv > 0) root.quoteInterval = iv * 1000
+                }
+            }
+        }
+        onRunningChanged: {
+            if (!running && root.pendingQuotes.length > 0) {
+                root.quotes = root.pendingQuotes
+                root.pendingQuotes = []
+                var idx = root.quoteIndex % root.quotes.length
+                root.quoteIndex = idx
+                root.currentQuote = root.quotes[idx]
+            }
+        }
+    }
+
+    Timer {
+        interval: 30000
+        running: true
+        repeat: true
+        onTriggered: {
+            root.pendingQuotes = []
+            quotesLoader.running = false
+            quotesLoader.running = true
+        }
+    }
+
+    Process {
+        id: editorLauncher
+        command: ["python3", "/home/arch/.config/scripts/quotes-editor.py"]
+        running: false
     }
 
     // VOLUME — event driven via pactl subscribe
@@ -490,15 +529,17 @@ PanelWindow {
             anchors.verticalCenter: parent.verticalCenter
             spacing: 8
 
-            // Marquee quote
+            // Marquee quote — click to open phrase editor
             Rectangle {
+                id: quotePill
                 implicitWidth: 180
                 implicitHeight: 36
                 radius: 18
-                color: Qt.rgba(0.06, 0.06, 0.06, 0.55)
-                border.color: Qt.rgba(1, 1, 1, 0.05)
+                color: Qt.rgba(0.06, 0.06, 0.06, quoteHover.hovered ? 0.75 : 0.55)
+                border.color: Qt.rgba(1, 1, 1, quoteHover.hovered ? 0.12 : 0.05)
                 border.width: 1
                 clip: true
+                Behavior on color { ColorAnimation { duration: 150 } }
 
                 Text {
                     id: quoteText
@@ -515,6 +556,18 @@ PanelWindow {
                         duration: 7000
                         loops: Animation.Infinite
                         running: true
+                    }
+                }
+
+                HoverHandler {
+                    id: quoteHover
+                    cursorShape: Qt.PointingHandCursor
+                }
+
+                TapHandler {
+                    onTapped: {
+                        editorLauncher.running = false
+                        editorLauncher.running = true
                     }
                 }
             }
