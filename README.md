@@ -1,4 +1,4 @@
-# 0-project dotfiles
+# 0-project dotfiles | DISCONTINUED
 
 Hyprland desktop setup for Arch-based distros (Arch, CachyOS, EndeavourOS, Manjaro, Garuda).
 
