@@ -185,6 +185,7 @@ link "$DOTFILES/scripts/lyrics-fetch.py"                     "$HOME/.config/scri
 link "$DOTFILES/scripts/powermenu.sh"                        "$HOME/.config/scripts/powermenu.sh"
 link "$DOTFILES/scripts/power-popup.py"                      "$HOME/.config/scripts/power-popup.py"
 link "$DOTFILES/scripts/update-notify.sh"                    "$HOME/.config/scripts/update-notify.sh"
+link "$DOTFILES/scripts/volume-overlay.py"                   "$HOME/.config/scripts/volume-overlay.py"
 link "$DOTFILES/fastfetch/config.jsonc"                      "$HOME/.config/fastfetch/config.jsonc"
 link "$DOTFILES/fastfetch/small.jsonc"                       "$HOME/.config/fastfetch/small.jsonc"
 link "$DOTFILES/matugen/templates/zsh-colors.zsh"            "$HOME/.config/matugen/templates/zsh-colors.zsh"
