@@ -1,12 +1,12 @@
 * {
     bg-glass:       #ffffff10;
-    bg-apps:        #261d1f90;
-    border-col:     #9e8c8f44;
-    fg:             #efdfe1;
-    fg-dim:         #9e8c8f;
-    accent:         #ffb1c4;
-    sel:            #70334566;
-    sel-border:     #ffb1c455;
+    bg-apps:        #1a212190;
+    border-col:     #89939344;
+    fg:             #dde4e3;
+    fg-dim:         #899393;
+    accent:         #80d4d7;
+    sel:            #004f5166;
+    sel-border:     #80d4d755;
 
     background-color:   transparent;
     text-color:         @fg;
