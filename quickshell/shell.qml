@@ -3,6 +3,8 @@ import Quickshell.Wayland
 import Quickshell.Io
 import QtQuick
 
+Scope {
+
 PanelWindow {
     id: root
     anchors.top: true
@@ -102,6 +104,8 @@ PanelWindow {
             onRead: (_) => {
                 volFetcher.running = false
                 volFetcher.running = true
+                volOverlay.pillOpacity = 1
+                volHideTimer.restart()
             }
         }
         onRunningChanged: {
@@ -613,3 +617,73 @@ PanelWindow {
         }
     }
 }
+
+// VOLUME OVERLAY — thin pill that appears on volume change
+PanelWindow {
+    id: volOverlay
+    anchors.bottom: true
+    anchors.left: true
+    anchors.right: true
+    implicitHeight: 64
+    exclusionMode: ExclusionMode.Ignore
+    color: "transparent"
+
+    property real pillOpacity: 0
+
+    Rectangle {
+        width: 420
+        height: 36
+        radius: 18
+        anchors.centerIn: parent
+        color: Qt.rgba(0.06, 0.06, 0.06, 0.92)
+        border.color: Qt.rgba(1, 1, 1, 0.06)
+        border.width: 1
+        opacity: volOverlay.pillOpacity
+        Behavior on opacity { NumberAnimation { duration: 150 } }
+
+        Row {
+            anchors.centerIn: parent
+            spacing: 12
+
+            Text {
+                text: root.isMuted ? "󰝟" : "󰕾"
+                color: root.isMuted ? "#ff5555" : Qt.rgba(1, 1, 1, 0.7)
+                font.pixelSize: 13
+                font.family: "Symbols Nerd Font"
+                anchors.verticalCenter: parent.verticalCenter
+            }
+
+            Rectangle {
+                width: 300
+                height: 4
+                radius: 2
+                color: Qt.rgba(1, 1, 1, 0.15)
+                anchors.verticalCenter: parent.verticalCenter
+
+                Rectangle {
+                    width: Math.max(0, Math.min(parent.width, parent.width * parseInt(root.volumePercent) / 100))
+                    height: parent.height
+                    radius: 2
+                    color: "white"
+                    Behavior on width { NumberAnimation { duration: 80 } }
+                }
+            }
+
+            Text {
+                text: root.volumePercent
+                color: Qt.rgba(1, 1, 1, 0.85)
+                font.pixelSize: 11
+                font.family: "JetBrains Mono"
+                anchors.verticalCenter: parent.verticalCenter
+            }
+        }
+    }
+
+    Timer {
+        id: volHideTimer
+        interval: 1800
+        onTriggered: volOverlay.pillOpacity = 0
+    }
+}
+
+} // Scope
