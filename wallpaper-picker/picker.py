@@ -283,6 +283,7 @@ class WallpaperPicker(Gtk.ApplicationWindow):
         # invalidate fetch cache now so any terminal opened during matugen
         # rebuilds rather than showing stale colors
         subprocess.run(["rm", "-f", "/tmp/zsh_fastfetch.jsonc", "/tmp/zsh_palette.sh"])
+        Path("/tmp/matugen-running").touch()
         GLib.idle_add(self.status.set_text, "Applying color theme…")
 
         matugen_proc = subprocess.Popen(
@@ -382,6 +383,8 @@ class WallpaperPicker(Gtk.ApplicationWindow):
             # reload colors in all running kitty windows (non-blocking)
             subprocess.Popen(["kitty", "@", "set-colors", "--all", "--configured"],
                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            # signal terminals that colors are ready
+            Path("/tmp/matugen-running").unlink(missing_ok=True)
             # close window now that colors are fully written
             GLib.idle_add(self.close)
 

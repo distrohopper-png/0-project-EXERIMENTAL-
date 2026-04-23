@@ -236,5 +236,13 @@ ${_PC4}╰─${_PR}${arrow} "
 [[ -f /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && \
     source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 
-# ── Run fetch on shell start ───────────────────────────────────────────────────
+# ── Run fetch on shell start (wait for matugen if a wallpaper change is in progress) ──
+[[ -f /tmp/matugen-running ]] && {
+    local _w=0
+    while [[ -f /tmp/matugen-running ]] && (( _w < 8 )); do
+        sleep 0.4
+        (( _w++ ))
+    done
+    _reload_colors
+}
 fetch
