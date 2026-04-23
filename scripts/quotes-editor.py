@@ -135,6 +135,15 @@ class QuotesEditor(Gtk.ApplicationWindow):
         self.set_default_size(480, 460)
         self.set_decorated(False)
         self._build_ui()
+        self.connect("close-request", self._on_close)
+
+    def _on_close(self, _win):
+        buf = self.textview.get_buffer()
+        text = buf.get_text(buf.get_start_iter(), buf.get_end_iter(), False)
+        quotes = [q.strip() for q in text.splitlines() if q.strip()]
+        if quotes:
+            _save(quotes, int(self.spin.get_value()))
+        return False
 
     def _build_ui(self):
         root = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
@@ -205,7 +214,7 @@ class QuotesEditor(Gtk.ApplicationWindow):
         save_btn.connect("clicked", self._on_save)
         body.append(save_btn)
 
-        self.status = Gtk.Label(label="Edit your phrases above, then save.")
+        self.status = Gtk.Label(label="Edit your phrases above — auto-saved on close.")
         self.status.set_halign(Gtk.Align.START)
         self.status.add_css_class("status-bar")
         root.append(self.status)
