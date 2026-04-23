@@ -71,6 +71,7 @@ bindkey '^[[A' history-search-backward
 bindkey '^[[B' history-search-forward
 
 # ── Aliases ───────────────────────────────────────────────────────────────────
+alias pull='git -C ~/dotfiles pull'
 alias ls='ls --color=auto'
 alias ll='ls -lah --color=auto'
 alias grep='grep --color=auto'
