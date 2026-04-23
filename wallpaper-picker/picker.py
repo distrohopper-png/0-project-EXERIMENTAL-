@@ -360,18 +360,11 @@ class WallpaperPicker(Gtk.ApplicationWindow):
                      "-format", "%[fx:mean]", "info:"],
                     capture_output=True, text=True, timeout=15
                 ).stdout.strip()
-                avg_bri_str = subprocess.run(
-                    ["convert", src, "-colorspace", "HSB",
-                     "-channel", "B", "-separate",
-                     "-format", "%[fx:mean]", "info:"],
-                    capture_output=True, text=True, timeout=15
-                ).stdout.strip()
                 avg_sat = float(avg_sat_str) if avg_sat_str else 1.0
-                avg_bri = float(avg_bri_str) if avg_bri_str else 1.0
             except Exception:
-                avg_sat, avg_bri = 1.0, 1.0
+                avg_sat = 1.0
 
-            if avg_sat < 0.12 and avg_bri > 0.35:
+            if avg_sat < 0.12:
                 # Achromatic/white/grey wallpaper — write a neutral palette that's
                 # readable on dark backgrounds instead of letting matugen's arbitrary
                 # tint (or near-invisible desaturated colours) through.
