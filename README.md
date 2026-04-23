@@ -1,4 +1,4 @@
-# hyprarch dotfiles
+# 0-project dotfiles
 
 Hyprland desktop setup for Arch-based distros (Arch, CachyOS, EndeavourOS, Manjaro, Garuda).
 
