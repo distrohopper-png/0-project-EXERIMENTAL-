@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import os, sys, gi, signal
+import os, sys, gi, signal, math
 gi.require_version("Gtk", "4.0")
 gi.require_version("Gtk4LayerShell", "1.0")
 from gi.repository import Gtk, Gdk, GLib, Gtk4LayerShell as LayerShell
@@ -13,27 +13,40 @@ def get_volume():
     except Exception:
         return 0, False
 
+def _accent():
+    try:
+        with open(os.path.expanduser("~/.config/zsh/colors.zsh")) as f:
+            for line in f:
+                if "ZSH_C1=" in line:
+                    c = line.split("=")[1].strip().strip("'\"").lstrip("#")
+                    if len(c) == 6:
+                        return int(c[0:2],16)/255, int(c[2:4],16)/255, int(c[4:6],16)/255
+    except Exception:
+        pass
+    return 1.0, 0.71, 0.67
+
 CSS = b"""
 window { background: transparent; }
 .pill {
-    background: rgba(6,6,6,0.60);
-    border-radius: 20px;
+    background: rgba(10,10,10,0.82);
+    border-radius: 999px;
     border: 1px solid rgba(255,255,255,0.07);
-    padding: 0 18px;
-    min-height: 36px;
-    min-width: 420px;
+    padding: 0 16px;
+    min-height: 42px;
+    min-width: 260px;
+    max-width: 260px;
 }
 .icon {
     font-family: "Symbols Nerd Font";
-    font-size: 14px;
-    color: rgba(255,255,255,0.5);
+    font-size: 15px;
+    color: rgba(255,255,255,0.60);
 }
-.muted { color: #ff5555; }
+.muted { color: rgba(255,80,80,0.90); }
 .pct {
     font-family: "JetBrains Mono";
-    font-size: 10px;
-    color: rgba(255,255,255,0.55);
-    min-width: 34px;
+    font-size: 9px;
+    color: rgba(255,255,255,0.38);
+    min-width: 24px;
 }
 """
 
@@ -44,15 +57,26 @@ _bar      = None
 _pct      = None
 _frac     = 0.0
 
+def _rrect(cr, x, y, w, h, r):
+    cr.new_sub_path()
+    cr.arc(x + r,     y + r,     r, math.pi,     3*math.pi/2)
+    cr.arc(x + w - r, y + r,     r, 3*math.pi/2, 0)
+    cr.arc(x + w - r, y + h - r, r, 0,            math.pi/2)
+    cr.arc(x + r,     y + h - r, r, math.pi/2,    math.pi)
+    cr.close_path()
+
 def _draw(area, cr, w, h):
-    bh = 3
+    bh = 4
     y  = (h - bh) / 2
-    cr.set_source_rgba(1, 1, 1, 0.12)
-    cr.rectangle(0, y, w, bh)
+    r  = bh / 2
+    cr.set_source_rgba(1, 1, 1, 0.08)
+    _rrect(cr, 0, y, w, bh, r)
     cr.fill()
-    cr.set_source_rgba(1, 1, 1, 0.75)
-    cr.rectangle(0, y, w * _frac, bh)
-    cr.fill()
+    if _frac > 0:
+        ar, ag, ab = _accent()
+        _rrect(cr, 0, y, max(bh, w * _frac), bh, r)
+        cr.set_source_rgba(ar, ag, ab, 0.85)
+        cr.fill()
 
 def _schedule_hide():
     global _hide_src
@@ -100,11 +124,11 @@ class App(Gtk.Application):
         LayerShell.init_for_window(win)
         LayerShell.set_layer(win, LayerShell.Layer.OVERLAY)
         LayerShell.set_anchor(win, LayerShell.Edge.BOTTOM, True)
-        LayerShell.set_margin(win, LayerShell.Edge.BOTTOM, 52)
+        LayerShell.set_margin(win, LayerShell.Edge.BOTTOM, 60)
         LayerShell.set_keyboard_mode(win, LayerShell.KeyboardMode.NONE)
         LayerShell.set_exclusive_zone(win, 0)
 
-        row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12)
+        row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
         row.add_css_class("pill")
         row.set_valign(Gtk.Align.CENTER)
 
@@ -121,6 +145,7 @@ class App(Gtk.Application):
         _pct = Gtk.Label()
         _pct.add_css_class("pct")
         _pct.set_valign(Gtk.Align.CENTER)
+        _pct.set_xalign(1.0)
 
         row.append(_icon)
         row.append(_bar)
